@@ -1,28 +1,39 @@
 <template>
-  <div style="border:1px solid #ddd;border-radius:8px;padding:12px;">
-    <h3>恒温器 ({{ deviceId }})</h3>
+  <el-card shadow="hover">
+    <template #header>
+      <span>thermostat — {{ deviceId }}</span>
+    </template>
 
-    <div v-if="!state">加载中...</div>
+    <div v-if="!state">
+      <el-empty description="loading..." />
+    </div>
+
     <div v-else>
-      <div style="margin-bottom:8px;">
-        <strong>测温:</strong> {{ state.measured_temp }} °C
-      </div>
-      <div style="margin-bottom:8px;">
-        <strong>当前设定:</strong>
-        <input type="number" v-model.number="localSetpoint" step="0.1" />
-        <button @click="applySetpoint">应用</button>
-      </div>
+      <el-descriptions border column="1" size="small">
+        <el-descriptions-item label="Current Temperature">
+          <el-tag type="info">{{ state.measured_temp }} °C</el-tag>
+        </el-descriptions-item>
 
-      <div style="margin-bottom:8px;">
-        <label><input type="checkbox" v-model="autoMode" @change="toggleAuto"> 自动响应模式</label>
-      </div>
+        <el-descriptions-item label="Set Point">
+          <el-input-number v-model="localSetpoint" :min="15" :max="30" step="0.5" />
+          <el-button type="primary" size="small" @click="applySetpoint">Set</el-button>
+        </el-descriptions-item>
 
-      <div style="margin-top:12px;color:#666;font-size:13px;">
-        <div>模式: {{ state.mode || '手动' }}</div>
-        <div>上次更新: {{ lastUpdated }}</div>
+        <el-descriptions-item label="Mode">
+          <el-switch
+            v-model="autoMode"
+            active-text="Auto"
+            inactive-text="Manual"
+            @change="toggleAuto"
+          />
+        </el-descriptions-item>
+      </el-descriptions>
+
+      <div style="margin-top:10px;font-size:12px;color:#999;">
+        Last Update Time: {{ lastUpdated }}
       </div>
     </div>
-  </div>
+  </el-card>
 </template>
 
 <script>
@@ -42,7 +53,7 @@ export default {
       }
     })
 
-    async function applySetpoint() {
+    function applySetpoint() {
       emit('update-setpoint', localSetpoint.value)
     }
 
@@ -50,12 +61,11 @@ export default {
       emit('toggle-auto', autoMode.value)
     }
 
-    const lastUpdated = computed(() => {
-      if (!props.state || !props.state.updated_at) return '—'
-      return new Date(props.state.updated_at).toLocaleString()
-    })
+    const lastUpdated = computed(() =>
+      props.state?.updated_at ? new Date(props.state.updated_at).toLocaleString() : '—'
+    )
 
-    return { localSetpoint, applySetpoint, autoMode, toggleAuto, lastUpdated }
+    return { localSetpoint, autoMode, applySetpoint, toggleAuto, lastUpdated }
   }
 }
 </script>

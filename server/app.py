@@ -1,43 +1,76 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import redis
-import json
+import redis, json
 from datetime import datetime
+from pathlib import Path
 
 app = Flask(__name__)
-CORS(app)  # 允许跨域
+CORS(app)
 
-# 连接 Redis
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
 
-# 工具函数：获取当前时间 ISO 格式
 def now_iso():
     return datetime.utcnow().isoformat() + "Z"
 
 
-# ========== 电价 API ==========
+# ========= Weather API =========
+WEATHER_FILE = Path("./weather.json")  # 本地文件路径
 
+@app.route("/api/weather", methods=["GET"])
+def get_weather():
+    """
+    从本地 weather.json 读取 BOM 数据，整理后返回
+    """
+    if not WEATHER_FILE.exists():
+        return jsonify({"error": "weather.json not found"}), 404
+
+    with open(WEATHER_FILE, "r", encoding="utf-8") as f:
+        bom = json.load(f)
+
+    header = bom.get("observations", {}).get("header", [{}])[0]
+    data = bom.get("observations", {}).get("data", [])
+
+    latest = data[0] if data else {}
+
+    simplified = {
+        "station": header.get("name", latest.get("name")),
+        "time": header.get("refresh_message"),
+        "air_temp": latest.get("air_temp"),
+        "apparent_temp": latest.get("apparent_t"),
+        "humidity": latest.get("rel_hum"),
+        "pressure": latest.get("press"),
+        "wind": {
+            "dir": latest.get("wind_dir"),
+            "speed_kmh": latest.get("wind_spd_kmh"),
+            "gust_kmh": latest.get("gust_kmh"),
+        },
+        "cloud": latest.get("cloud"),
+        "weather": latest.get("weather"),
+        "lat": latest.get("lat"),
+        "lon": latest.get("lon"),
+    }
+    return jsonify(simplified)
+
+
+# ========= Price API =========
 @app.route("/api/price", methods=["GET"])
 def get_price():
     raw = r.get("prices_json")
     if raw:
         prices = json.loads(raw)
     else:
-        # 如果没有价格，就生成一份示例
         prices = []
-        base_price = 40.0
         for i in range(6):
             prices.append({
                 "t": (datetime.utcnow()).isoformat() + "Z",
-                "price": base_price + i * 5
+                "price": 40 + i * 5
             })
         r.set("prices_json", json.dumps(prices))
     return jsonify({"now": now_iso(), "prices": prices})
 
 
-# ========== 设备 API ==========
-
+# ========= Device API =========
 @app.route("/api/device/<device_id>/state", methods=["GET"])
 def device_state(device_id):
     key = f"device:{device_id}:state"
@@ -45,7 +78,6 @@ def device_state(device_id):
     if raw:
         state = json.loads(raw)
     else:
-        # 默认状态
         state = {
             "device_id": device_id,
             "measured_temp": 24.0,
@@ -80,7 +112,6 @@ def report_device(device_id):
     body = request.get_json()
     raw = r.get(key)
     state = json.loads(raw) if raw else {}
-    # 更新状态
     state.update(body)
     state["device_id"] = device_id
     state["updated_at"] = now_iso()
@@ -88,8 +119,7 @@ def report_device(device_id):
     return jsonify(state)
 
 
-# ========== 聚合 API（可选） ==========
-
+# ========= Aggregated =========
 @app.route("/api/agg/summary", methods=["GET"])
 def summary():
     keys = r.keys("device:*:state")
@@ -101,6 +131,5 @@ def summary():
     return jsonify({"devices": devices, "count": len(devices)})
 
 
-# 入口
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)

@@ -33,10 +33,16 @@ export async function fetchAggSummary() {
   return r.data
 }
 
+export async function fetchWeather() {
+  const r = await client.get('/weather')
+  return r.data
+}
+
 export default {
   fetchPrices,
   fetchDeviceState,
   setDeviceSetpoint,
   reportDevice,
-  fetchAggSummary
+  fetchAggSummary,
+  fetchWeather
 }
