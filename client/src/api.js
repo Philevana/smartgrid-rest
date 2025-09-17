@@ -1,0 +1,42 @@
+import axios from 'axios'
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api'
+
+const client = axios.create({
+  baseURL: API_BASE,
+  timeout: 5000,
+  headers: { 'Content-Type': 'application/json' }
+})
+
+export async function fetchPrices() {
+  const r = await client.get('/price')
+  return r.data
+}
+
+export async function fetchDeviceState(deviceId) {
+  const r = await client.get(`/device/${deviceId}/state`)
+  return r.data
+}
+
+export async function setDeviceSetpoint(deviceId, setpoint) {
+  const r = await client.post(`/device/${deviceId}/setpoint`, { setpoint })
+  return r.data
+}
+
+export async function reportDevice(deviceId, payload) {
+  const r = await client.post(`/device/${deviceId}/report`, payload)
+  return r.data
+}
+
+export async function fetchAggSummary() {
+  const r = await client.get('/agg/summary')
+  return r.data
+}
+
+export default {
+  fetchPrices,
+  fetchDeviceState,
+  setDeviceSetpoint,
+  reportDevice,
+  fetchAggSummary
+}
