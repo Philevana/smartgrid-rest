@@ -58,7 +58,7 @@ export default {
         data: {
           labels,
           datasets: [{
-            label: '电价 (AUD/MWh)',
+            label: 'Electricity Price (AUD/MWh)',
             data,
             borderColor: '#409EFF',
             backgroundColor: gradient,
