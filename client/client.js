@@ -1,5 +1,5 @@
 const { exec } = require('child_process')
-exec('pnpm run dev',(error, stdout, stderr) => {
+exec('pnpm run serve',(error, stdout, stderr) => {
         if(error){
                 console.log('exec error: ${error}')
                 return
