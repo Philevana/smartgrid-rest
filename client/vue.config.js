@@ -6,7 +6,6 @@ module.exports = defineConfig({
   devServer: {
     port: 5001,  // 设置端口为5001
     host: '0.0.0.0',  // 允许外部访问
-    public: 'www.hideosonn.online',  // 公共域名
     
     // 解决WebSocket安全问题
     client: {
