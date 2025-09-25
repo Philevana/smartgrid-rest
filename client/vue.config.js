@@ -1,9 +1,48 @@
 const { defineConfig } = require('@vue/cli-service')
+
 module.exports = defineConfig({
   transpileDependencies: ['marked'],
+  
   devServer: {
+    port: 5001,  // 设置端口为5001
+    host: '0.0.0.0',  // 允许外部访问
+    public: 'www.hideosonn.online',  // 公共域名
+    
+    // 解决WebSocket安全问题
     client: {
-      webSocketURL: 'auto://0.0.0.0:0/ws' // 自动协议，正式开发时不要这么做
+      webSocketURL: {
+        protocol: 'wss',  // 使用安全的WebSocket
+        hostname: 'www.hideosonn.online',
+        port: 443,
+        pathname: '/ws'
+      }
+    },
+    
+    // 解决Invalid Host header问题
+    allowedHosts: [
+      'www.hideosonn.online',
+      'hideosonn.online',
+      '.hideosonn.online',  // 匹配所有子域名
+      'localhost',
+      '127.0.0.1',
+      '159.75.77.100'  // 你的服务器IP
+    ],
+    
+    // 禁用主机检查（开发环境）
+    disableHostCheck: true,
+    
+    // 热重载配置
+    hot: true,
+    liveReload: true,
+    
+    // 代理配置
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',  // Flask后端
+        changeOrigin: true,
+        ws: true,  // 启用WebSocket代理
+        secure: false
+      }
     }
   }
 })
