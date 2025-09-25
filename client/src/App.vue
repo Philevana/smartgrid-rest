@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import Dashboard from './components/DashBoard.vue'
+import Dashboard from './components/UserDashBoard.vue'
 export default { components: { Dashboard } }
 </script>
 

@@ -46,7 +46,7 @@ import ThermostatClient from './ThermostatClient.vue'
 import WeatherCard from './WeatherCard.vue'
 
 export default {
-  name: 'Dashboard',
+  name: 'UserDashBoard',
   components: { PriceChart, ThermostatClient, WeatherCard },
   setup() {
     const prices = ref([])
