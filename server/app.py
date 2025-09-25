@@ -33,9 +33,6 @@ WEATHER_FILE = Path("./weather.json")
 
 @app.route("/api/weather", methods=["GET"])
 def get_weather():
-    """
-    从本地 weather.json 读取 BOM 数据，整理后返回
-    """
     if not WEATHER_FILE.exists():
         return jsonify({"error": "weather.json not found"}), 404
 
