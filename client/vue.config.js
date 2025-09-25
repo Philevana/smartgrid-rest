@@ -20,17 +20,17 @@ module.exports = defineConfig({
     hot: true, // 热更新
     
     proxy: {
-      [process.env.VUE_APP_API_PREFIX || '/api']: {
-        target: process.env.VUE_APP_API_BASE?.replace(/\/api$/, '') || 'https://www.hideosonn.online',
+      '/api': {
+        target: 'http://localhost:5000',
         changeOrigin: true,
-        secure: true,
         ws: true,
+        secure: false,
         pathRewrite: {
-          [`^${process.env.VUE_APP_API_PREFIX || '/api'}`]: process.env.VUE_APP_API_BASE?.includes('/api') 
-            ? '/elen90061/api' 
-            : '/api'
+          '^/api': ''
         },
-        logLevel: 'debug'
+        onProxyReq: (proxyReq, req, res) => {
+          console.log('Proxying:', req.method, req.url)
+        }
       }
     },
     
@@ -42,8 +42,6 @@ module.exports = defineConfig({
       }
     }
   },
-
-  publicPath: './',
   
   lintOnSave: process.env.NODE_ENV === 'development',
   
