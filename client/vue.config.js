@@ -28,9 +28,6 @@ module.exports = defineConfig({
       '159.75.77.100'  // 你的服务器IP
     ],
     
-    // 禁用主机检查（开发环境）
-    disableHostCheck: true,
-    
     // 热重载配置
     hot: true,
     liveReload: true,
