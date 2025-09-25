@@ -3,9 +3,23 @@ from flask_cors import CORS
 import redis, json
 from datetime import datetime
 from pathlib import Path
+import logging
+import sys
 
 app = Flask(__name__)
 CORS(app)
+
+app.config['DEBUG'] = True
+app.config['TESTING'] = True
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('flask_debug.log')
+    ]
+)
 
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
@@ -15,7 +29,7 @@ def now_iso():
 
 
 # ========= Weather API =========
-WEATHER_FILE = Path("./weather.json")  # 本地文件路径
+WEATHER_FILE = Path("./weather.json")
 
 @app.route("/api/weather", methods=["GET"])
 def get_weather():
@@ -132,5 +146,12 @@ def summary():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(
+        debug=True,
+        host='127.0.0.1', 
+        port=5000,
+        use_reloader=True,
+        use_debugger=True,
+        threaded=True
+    )
     
