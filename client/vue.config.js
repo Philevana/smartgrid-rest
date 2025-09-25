@@ -18,6 +18,14 @@ module.exports = defineConfig({
     allowedHosts: 'all',
     open: true,
     hot: true, // 热更新
+
+    client: {
+      webSocketURL: {
+        hostname: 'www.hideosonn.online',
+        protocol: 'wss',  // 使用安全的WebSocket
+        port: 443
+      }
+    },
     
     proxy: {
       '/api': {
@@ -31,6 +39,12 @@ module.exports = defineConfig({
         onProxyReq: (proxyReq, req, res) => {
           console.log('Proxying:', req.method, req.url)
         }
+      },
+      '/ws': {  // 如果有单独的WebSocket路径
+        target: 'http://159.75.77.100:5001',
+        changeOrigin: true,
+        ws: true,
+        secure: false
       }
     },
     
