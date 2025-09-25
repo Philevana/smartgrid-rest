@@ -2,6 +2,9 @@ const { defineConfig } = require('@vue/cli-service')
 
 module.exports = defineConfig({
   transpileDependencies: ['marked'],
+
+  outputDir: 'demo/dist',
+  assetsDir: 'demo/static',  // 静态资源目录，这会影响js/css等文件的存放路径
   
   devServer: {
     port: 5001,  // 设置端口为5001
