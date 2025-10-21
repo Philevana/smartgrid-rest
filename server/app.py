@@ -129,6 +129,22 @@ def report_device(device_id):
     r.set(key, json.dumps(state))
     return jsonify(state)
 
+@app.route("/api/device/<device_id>/lightstatus", methods=["GET"])
+def device_lightstatus(device_id):
+    key = f"device:{device_id}:lightstatus"
+    raw = r.get(key)
+    if raw:
+        status = json.loads(raw)
+    else:
+        status = {
+            "device_id": device_id,
+            "light_on": False,
+            "brightness": 0,
+            "updated_at": now_iso()
+        }
+        r.set(key, json.dumps(status))
+    return jsonify(status)
+
 
 # ========= Aggregated =========
 @app.route("/api/agg/summary", methods=["GET"])
