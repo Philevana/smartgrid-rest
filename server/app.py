@@ -145,6 +145,22 @@ def device_lightstatus(device_id):
         r.set(key, json.dumps(status))
     return jsonify(status)
 
+@app.route("/api/device/<device_id>/setlight", methods=["POST"])
+def set_lightstatus(device_id):
+    key = f"device:{device_id}:lightstatus"
+    body = request.get_json()
+    light_on = bool(body.get("light_on", False))
+    brightness = int(body.get("brightness", 0))
+    raw = r.get(key)
+    status = json.loads(raw) if raw else {}
+    status.update({
+        "device_id": device_id,
+        "light_on": light_on,
+        "brightness": brightness,
+        "updated_at": now_iso()
+    })
+    r.set(key, json.dumps(status))
+    return jsonify(status)
 
 # ========= Aggregated =========
 @app.route("/api/agg/summary", methods=["GET"])

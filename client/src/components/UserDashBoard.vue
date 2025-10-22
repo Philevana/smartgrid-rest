@@ -9,7 +9,9 @@
       <ThermostatClient
         device-id="house-001"
         :state="deviceState"
+        :light="lightState"
         @update-setpoint="onSetpoint"
+        @set-light="onSetLight"
         @toggle-auto="onToggleAuto"
       />
     </el-col>
@@ -51,6 +53,7 @@ export default {
   setup() {
     const prices = ref([])
     const deviceState = ref(null)
+    const lightState = ref(null)
     const lastUpdate = ref(null)
 
     async function loadPrices() {
@@ -72,6 +75,15 @@ export default {
       }
     }
 
+    async function loadLight() {
+      try {
+        const ls = await api.fetchLightState('house-001')
+        lightState.value = ls
+      } catch (e) {
+        console.error('fetchLightState', e)
+      }
+    }
+
     async function refreshAll() {
       await Promise.all([loadPrices(), loadDevice()])
       lastUpdate.value = new Date()
@@ -86,10 +98,22 @@ export default {
       }
     }
 
+    async function onSetLight(light_on, brightness) {
+      try {
+        const res = await api.setLightState('house-001', { light_on, brightness })
+        deviceState.value.light_on = res.light_on
+        deviceState.value.brightness = res.brightness
+      } catch (e) {
+        console.error('setLightState', e)
+      }
+      
+    }
+
     async function onToggleAuto(enable) {
       try {
         await api.reportDevice('house-001', { auto_mode: enable })
         await loadDevice()
+        await loadLight()
       } catch (e) {
         console.error('toggleAuto', e)
       }
@@ -104,7 +128,7 @@ export default {
       lastUpdate.value ? lastUpdate.value.toLocaleTimeString() : '未刷新'
     )
 
-    return { prices, deviceState, refreshAll, onSetpoint, onToggleAuto, lastUpdateDisplay }
+    return { prices, deviceState, refreshAll, onSetpoint, onSetLight, onToggleAuto, lastUpdateDisplay }
   }
 }
 </script>

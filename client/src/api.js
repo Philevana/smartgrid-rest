@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 const API_BASE = process.env.VUE_APP_API_BASE || 'http://localhost:5000/api'
+//const API_BASE = 'http://localhost:5000/api'
 
 const client = axios.create({
   baseURL: API_BASE,
@@ -28,6 +29,16 @@ export async function reportDevice(deviceId, payload) {
   return r.data
 }
 
+export async function setLightState(deviceId, { light_on, brightness }) {
+  const r = await client.post(`/device/${deviceId}/setlight`, { light_on, brightness })
+  return r.data
+}
+
+export async function fetchLightState(deviceId) {
+  const r = await client.get(`/device/${deviceId}/lightstatus`)
+  return r.data
+}
+
 export async function fetchAggSummary() {
   const r = await client.get('/agg/summary')
   return r.data
@@ -42,6 +53,8 @@ export default {
   fetchPrices,
   fetchDeviceState,
   setDeviceSetpoint,
+  setLightState,
+  fetchLightState,
   reportDevice,
   fetchAggSummary,
   fetchWeather
