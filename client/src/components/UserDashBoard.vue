@@ -85,7 +85,7 @@ export default {
     }
 
     async function refreshAll() {
-      await Promise.all([loadPrices(), loadDevice()])
+      await Promise.all([loadPrices(), loadDevice(), loadLight()])
       lastUpdate.value = new Date()
     }
 
@@ -101,8 +101,8 @@ export default {
     async function onSetLight(light_on, brightness) {
       try {
         const res = await api.setLightState('house-001', { light_on, brightness })
-        deviceState.value.light_on = res.light_on
-        deviceState.value.brightness = res.brightness
+        lightState.value.light_on = res.light_on
+        lightState.value.brightness = res.brightness
       } catch (e) {
         console.error('setLightState', e)
       }
@@ -128,7 +128,7 @@ export default {
       lastUpdate.value ? lastUpdate.value.toLocaleTimeString() : '未刷新'
     )
 
-    return { prices, deviceState, refreshAll, onSetpoint, onSetLight, onToggleAuto, lastUpdateDisplay }
+    return { prices, deviceState, lightState, refreshAll, onSetpoint, onSetLight, onToggleAuto, lastUpdateDisplay }
   }
 }
 </script>

@@ -34,7 +34,7 @@
 
       <el-divider />
 
-      <el-descriptions column="1" border size="small">
+      <el-descriptions :column="1" border size="small">
         <el-descriptions-item label="Wind Direction">
           {{ weather.wind?.dir }} ({{ weather.wind?.speed_kmh }} km/h, gust {{ weather.wind?.gust_kmh }} km/h)
         </el-descriptions-item>
